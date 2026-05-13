@@ -14,10 +14,18 @@ class FruitServices {
         return result.rows[0] || null;
     }
 
+    async postFruit(fruit) {
+        const { name, quantidade } = fruit;
+        const result = await pool.query(
+            'INSERT INTO public."edu-bartellt_frutas" (name, quantidade) VALUES ($1, $2) RETURNING *',
+            [name, quantidade]
+        );
+        return result.rows[0];
+    }
+
     async patchFruit(id, updatedFields) {
         const fields = Object.keys(updatedFields);
         const values = Object.values(updatedFields);
-
         const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ');
         const result = await pool.query(
             `UPDATE public."edu-bartellt_frutas" SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
@@ -31,6 +39,14 @@ class FruitServices {
         const result = await pool.query(
             `UPDATE public."edu-bartellt_frutas" SET name = $1, quantidade = $2 WHERE id = $3 RETURNING *`,
             [fields.name, fields.quantidade, id]
+        );
+        return result.rows[0] || null;
+    }
+
+    async deleteFruit(id) {
+        const result = await pool.query(
+            'DELETE FROM public."edu-bartellt_frutas" WHERE id = $1 RETURNING *',
+            [id]
         );
         return result.rows[0] || null;
     }
